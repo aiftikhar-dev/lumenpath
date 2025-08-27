@@ -190,12 +190,12 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const sendChatMessage = async (sessionId: string, message: string): Promise<ChatResponse> => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/${sessionId}/chat`, {
+      const response = await fetch(`${BASE_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message , session_id: sessionId}),
       });
 
       if (!response.ok) {

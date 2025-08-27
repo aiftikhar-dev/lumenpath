@@ -123,6 +123,13 @@ const BASE_URL = process.env.NODE_ENV === 'production'
   ? '/api/assessments' 
   : 'http://4.161.43.78/assessments';
 
+// Alternative URLs to try if the main one fails
+const FALLBACK_URLS = [
+  'https://4.161.43.78/assessments',
+  'http://4.161.43.78:80/assessments',
+  'http://4.161.43.78:8080/assessments'
+];
+
 export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentSession, setCurrentSession] = useState<SessionResponse | null>(null);
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -161,6 +168,9 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const createSession = async (sessionData: AssessmentSession): Promise<SessionResponse> => {
     setIsLoading(true);
     try {
+      console.log('Attempting to create session with URL:', `${BASE_URL}/create-session`);
+      console.log('Session data:', sessionData);
+      
       const response = await fetch(`${BASE_URL}/create-session`, {
         method: 'POST',
         headers: {
@@ -169,11 +179,18 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
         body: JSON.stringify(sessionData),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       if (!response.ok) {
-        throw new Error(`Failed to create session: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
+        throw new Error(`Failed to create session: ${response.status} ${response.statusText}`);
       }
 
       const data: SessionResponse = await response.json();
+      console.log('Session created successfully:', data);
+      
       setCurrentSession({
         ...data,
         ...sessionData
@@ -182,6 +199,11 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
       return data;
     } catch (error) {
       console.error('Error creating session:', error);
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      });
       throw error;
     } finally {
       setIsLoading(false);

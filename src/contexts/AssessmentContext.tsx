@@ -33,16 +33,16 @@ interface Question {
 }
 
 interface ChatResponse {
+  session_id: string;
+  status: string;
   message: string;
-  complete?: boolean;
+  current_step: string;
   assessment_data?: {
+    total_questions: number;
+    short_answer_count: number;
+    mcq_count: number;
+    true_false_count: number;
     questions: Question[];
-    title?: string;
-    description?: string;
-    instructions?: string;
-    time_limit?: string;
-    difficulty?: string;
-    total_points?: number;
   };
 }
 
@@ -119,16 +119,7 @@ interface AssessmentContextType {
 
 const AssessmentContext = createContext<AssessmentContextType | undefined>(undefined);
 
-const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api/assessments' 
-  : 'http://4.161.43.78/assessments';
-
-// Alternative URLs to try if the main one fails
-const FALLBACK_URLS = [
-  'https://4.161.43.78/assessments',
-  'http://4.161.43.78:80/assessments',
-  'http://4.161.43.78:8080/assessments'
-];
+const BASE_URL = 'http://4.161.43.78/assessments';
 
 export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentSession, setCurrentSession] = useState<SessionResponse | null>(null);
@@ -168,9 +159,6 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const createSession = async (sessionData: AssessmentSession): Promise<SessionResponse> => {
     setIsLoading(true);
     try {
-      console.log('Attempting to create session with URL:', `${BASE_URL}/create-session`);
-      console.log('Session data:', sessionData);
-      
       const response = await fetch(`${BASE_URL}/create-session`, {
         method: 'POST',
         headers: {
@@ -179,17 +167,11 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
         body: JSON.stringify(sessionData),
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response body:', errorText);
         throw new Error(`Failed to create session: ${response.status} ${response.statusText}`);
       }
 
       const data: SessionResponse = await response.json();
-      console.log('Session created successfully:', data);
       
       setCurrentSession({
         ...data,
@@ -199,11 +181,6 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
       return data;
     } catch (error) {
       console.error('Error creating session:', error);
-      console.error('Error details:', {
-        name: error instanceof Error ? error.name : 'Unknown',
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack trace'
-      });
       throw error;
     } finally {
       setIsLoading(false);
@@ -213,12 +190,12 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const sendChatMessage = async (sessionId: string, message: string): Promise<ChatResponse> => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/chat`, {
+      const response = await fetch(`${BASE_URL}/${sessionId}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message , session_id: sessionId}),
+        body: JSON.stringify({ message }),
       });
 
       if (!response.ok) {
@@ -311,10 +288,6 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
           } : null);
           setShowAssessment(true);
           setIsSessionActive(false);
-        } else if (generateResponse.complete) {
-          // Fallback to old method if needed
-          setShowAssessment(true);
-          setIsSessionActive(false);
         } else {
           // Add generate response
           const generateBotMessage: Message = {
@@ -366,10 +339,6 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
             ...prev,
             questions: generateResponse.assessment_data.questions || []
           } : null);
-          setShowAssessment(true);
-          setIsSessionActive(false);
-        } else if (generateResponse.complete) {
-          // Fallback to old method if needed
           setShowAssessment(true);
           setIsSessionActive(false);
         } else {

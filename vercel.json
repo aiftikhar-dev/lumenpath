@@ -26,6 +26,10 @@
     {
       "source": "/api/career-counselor/:path*",
       "destination": "http://4.161.43.78/career-counselor/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

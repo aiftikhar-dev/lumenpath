@@ -1,350 +1,180 @@
-# AI Career Counselor, Educational Counselor & Course Generator API Integration
+# API Integration for AI Assessment Creator
 
 ## Overview
-All three AI components have been updated to integrate with backend APIs for real-time functionality using React Context to avoid loop issues and provide better state management.
-
-## Architecture
-
-### Context Providers
-- **`CareerCounselorProvider`**: Manages career counseling sessions and API calls
-- **`EducationalCounselorProvider`**: Manages educational counseling sessions and API calls
-- **`CourseGeneratorProvider`**: Manages course generation sessions and API calls
-
-### Key Benefits
-- **No Loop Issues**: Uses `useCallback` and proper dependency management
-- **Centralized State**: Messages, session, and loading states managed in context
-- **Reusable**: Can be used across multiple components
-- **Better Performance**: Prevents unnecessary re-renders
-- **Auto-scroll**: Chat automatically scrolls to bottom on new messages
+The AI Assessment Creator has been integrated with the external API endpoints to provide real-time assessment generation capabilities.
 
 ## API Endpoints
 
-### Career Counselor API
-**Base URL**: `http://4.161.43.78/career-counselor`
+### Base URL
+```
+http://4.161.43.78/assessments
+```
 
-#### 1. Create Default Session
-- **Endpoint**: `/sessions/default`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Response**:
-  ```json
-  {
-    "session_id": "string",
-    "message": "string"
-  }
-  ```
+### 1. Create Assessment Session
+**Endpoint:** `POST /create-session`
 
-#### 2. Chat Message
-- **Endpoint**: `/sessions/{session_id}/chat`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Body**:
-  ```json
-  {
-    "session_id": "string",
-    "message": "string"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "message": "string"
-  }
-  ```
-
-### Educational Counselor API
-**Base URL**: `http://4.161.43.78/educational-counselor`
-
-#### 1. Create Default Session
-- **Endpoint**: `/sessions/default`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Response**:
-  ```json
-  {
-    "session_id": "string",
-    "message": "string"
-  }
-  ```
-
-#### 2. Chat Message
-- **Endpoint**: `/sessions/{session_id}/chat`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Body**:
-  ```json
-  {
-    "session_id": "string",
-    "message": "string"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "message": "string"
-  }
-  ```
-
-### Course Generator API
-**Base URL**: `http://4.161.43.78/courses`
-
-#### 1. Start Session
-- **Endpoint**: `/start-session`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Response**:
-  ```json
-  {
-    "session_id": "string",
-    "message": "string"
-  }
-  ```
-
-#### 2. Answer Question
-- **Endpoint**: `/answer-question`
-- **Method**: `POST`
-- **Headers**: `Content-Type: application/json`
-- **Body**:
-  ```json
-  {
-    "session_id": "string",
-    "answer": "string"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "message": "string",
-    "next_question": "string",
-    "is_complete": "boolean"
-  }
-  ```
-
-#### 3. Get Generated Course
-- **Endpoint**: `/get-course/{session_id}`
-- **Method**: `GET`
-- **Headers**: `Content-Type: application/json`
-- **Response**:
-  ```json
-  {
-    "course": "object",
-    "message": "string"
-  }
-  ```
-
-### Course Response Structure
-
-The `/get-course/{session_id}` endpoint returns a rich course object:
-
+**Payload:**
 ```json
 {
-  "session_id": "9bb0bada-bf79-4814-adbd-966733547e3f",
-  "course": {
-    "course_title": "Food Delivery App Onboarding: Complete Setup and Your First Order",
-    "course_description": "A blended onboarding course for everyday end users...",
-    "modules": [
-      {
-        "module_name": "Introduction",
-        "module_description": "Overview of the app, who this course is for...",
-        "content": "Who this is for:\n- New customers and everyday end users...",
-        "questions": [
-          {
-            "question": "What is the most important first step...",
-            "options": ["Enable dark mode", "Create an account...", ...],
-            "correct_answer": "B",
-            "explanation": "You need a verified account to place an order..."
-          }
-        ]
-      }
-    ]
-  },
-  "filename": "courses/food_delivery_app_onboarding.json"
+  "assessment_type": "string",
+  "topic": "string", 
+  "difficulty": "string",
+  "short_answer_count": "number",
+  "mcq_count": "number",
+  "true_false_count": "number"
 }
 ```
 
-### Course Display Features
+**Response:**
+```json
+{
+  "session_id": "string",
+  "assessment_type": "string",
+  "topic": "string",
+  "difficulty": "string",
+  "total_questions": "number",
+  "short_answer_count": "number",
+  "mcq_count": "number",
+  "true_false_count": "number",
+  "questions": []
+}
+```
 
-The Course Generator now displays:
-- **Course Overview**: Title, description, and metadata
-- **Module Structure**: Each module with name, description, and content
-- **Assessment Questions**: Interactive quiz questions with explanations
-- **Rich Content**: Formatted content with proper whitespace handling
-- **Action Buttons**: Edit, finalize, or create new course options
+### 2. Chat with AI
+**Endpoint:** `POST /chat`
 
-## How It Works
+**Payload:**
+```json
+{
+  "message": "string",
+  "session_id": "string"
+}
+```
 
-1. **Context Initialization**: Each provider automatically creates a session when mounted
-2. **Session Management**: Stores session ID and manages API calls
-3. **Message Handling**: All messages are managed through context functions
-4. **State Persistence**: Messages and session state persist across component re-renders
-5. **Auto-scroll**: Chat automatically scrolls to bottom when new messages arrive
-6. **Course Generation**: Interactive Q&A flow that builds course requirements
+**Response:**
+```json
+{
+  "message": "string",
+  "complete": "boolean",
+  "assessment_data": {
+    "questions": [
+      {
+        "id": "string",
+        "type": "string",
+        "question": "string",
+        "answer": "string",
+        "explanation": "string",
+        "answer_type": "string",
+        "options": ["string"],
+        "correct_answer": "string"
+      }
+    ],
+    "title": "string",
+    "description": "string",
+    "instructions": "string",
+    "time_limit": "string",
+    "difficulty": "string",
+    "total_points": "number"
+  }
+}
+```
+
+**Auto-Generation Behavior:**
+When the response message contains "generate", the system automatically:
+1. Sends the "generate" command to the API
+2. Shows a loading state "Generating assessment..."
+3. Processes the response with assessment_data
+4. Displays the generated assessment
+
+### 3. Get Assessment
+**Endpoint:** `GET /sessions/{session_id}`
+
+**Response:** Complete assessment with all questions and answers.
+
+## Implementation Details
+
+### Context Management
+- **AssessmentContext**: Centralized state management for all assessment-related data
+- **Session Management**: Handles creation, chat, and completion of assessment sessions
+- **Form State**: Manages the initial assessment configuration form
+- **Messages**: Tracks conversation between user and AI
+- **UI State**: Controls form visibility, assessment view, and navigation
+
+### Component Structure
+- **AIAssessmentCreator**: Main component that orchestrates the entire assessment creation flow
+- **Session Form**: Initial configuration form for assessment parameters
+- **Chat Interface**: Real-time conversation with AI to build assessment
+- **Assessment View**: Final generated assessment display
+- **My Assessments**: Saved assessments management
+
+### Key Features
+1. **Session Creation**: Users configure assessment parameters and create a new session
+2. **AI Chat**: Bilateral conversation with AI to refine and build the assessment
+3. **Auto-Generation**: When AI suggests generation, automatically sends "generate" command
+4. **Real-time Generation**: Assessment is generated as the conversation progresses
+5. **Assessment Completion**: When assessment_data is received, final assessment is displayed
+6. **Save & Manage**: Users can save assessments and view them later
+
+### Auto-Generation Flow
+The system intelligently detects when the AI is ready to generate an assessment:
+
+1. **Detection**: Monitors chat responses for "generate" keyword
+2. **Auto-Command**: Automatically sends "generate" command to API
+3. **Loading State**: Shows "Generating assessment..." message
+4. **Data Processing**: Extracts assessment_data from response
+5. **Display**: Shows generated assessment with questions and explanations
+
+### Manual Generation
+Users can also manually type "generate" at any time to trigger assessment generation.
+
+### Error Handling
+- Network request failures are caught and displayed to users
+- Graceful fallbacks for API errors
+- Loading states during API calls
+
+### State Flow
+1. **Initial State**: Session form is displayed
+2. **Session Created**: Chat interface becomes active
+3. **Chat Phase**: User and AI exchange messages
+4. **Completion**: Assessment is generated and displayed
+5. **Save**: Assessment can be saved to local storage
 
 ## Usage
 
-### 1. Wrap Components with Providers
-```tsx
-import { CareerCounselorProvider } from "@/contexts/CareerCounselorContext";
-import { EducationalCounselorProvider } from "@/contexts/EducationalCounselorContext";
-import { CourseGeneratorProvider } from "@/contexts/CourseGeneratorContext";
+### Basic Flow
+1. Navigate to Faculty Dashboard → Assessments tab
+2. Fill out the assessment configuration form
+3. Click "Create Session" to start
+4. Chat with AI to build your assessment
+5. When complete, review and save the assessment
 
-{/* Career Counselor */}
-<CareerCounselorProvider>
-  <AICareerCounselor />
-</CareerCounselorProvider>
+### Configuration Options
+- **Assessment Type**: Online Assessment, Quiz, Exam, Practice Test
+- **Difficulty**: Easy, Medium, Hard
+- **Question Types**: MCQ, Short Answer, True/False
+- **Question Counts**: Configurable for each type
 
-{/* Educational Counselor */}
-<EducationalCounselorProvider>
-  <AIEducationalCounselor />
-</EducationalCounselorProvider>
+## Technical Notes
 
-{/* Course Generator */}
-<CourseGeneratorProvider>
-  <CourseGenerator />
-</CourseGeneratorProvider>
-```
+### Dependencies
+- React Context API for state management
+- Fetch API for HTTP requests
+- TypeScript for type safety
+- Tailwind CSS for styling
 
-### 2. Use Context in Components
-```tsx
-// Career Counselor
-import { useCareerCounselor } from "@/contexts/CareerCounselorContext";
-const { messages, isInitializing, isLoading, error, addMessage, sendMessage, clearError } = useCareerCounselor();
+### Performance Considerations
+- API calls are debounced to prevent excessive requests
+- Loading states provide user feedback
+- Efficient re-renders through context optimization
 
-// Educational Counselor
-import { useEducationalCounselor } from "@/contexts/EducationalCounselorContext";
-const { messages, isInitializing, isLoading, error, addMessage, sendMessage, clearError } = useEducationalCounselor();
+### Security
+- No sensitive data is stored in the frontend
+- API endpoints handle authentication and authorization
+- Input validation on both client and server sides
 
-// Course Generator
-import { useCourseGenerator } from "@/contexts/CourseGeneratorContext";
-const { messages, isInitializing, isLoading, error, isComplete, generatedCourse, addMessage, sendAnswer, getGeneratedCourse, clearError } = useCourseGenerator();
-```
-
-## Context Functions
-
-### Career & Educational Counselor Contexts
-- **`addMessage(message)`**: Add a new message to the chat
-- **`sendMessage(userMessage)`**: Send message to API and get AI response
-- **`resetSession()`**: Reset the current session and start fresh
-- **`clearError()`**: Clear any error messages
-
-### Course Generator Context
-- **`addMessage(message)`**: Add a new message to the chat
-- **`sendAnswer(answer)`**: Send answer to API and get next question
-- **`getGeneratedCourse()`**: Retrieve the generated course
-- **`setCurrentStep(step)`**: Manually set the current step
-- **`resetSession()`**: Reset the current session and start fresh
-- **`clearError()`**: Clear any error messages
-
-## Features
-
-- **Real-time Chat**: Bilateral conversation between user and AI
-- **Session Management**: Each user gets a unique session ID
-- **Loading States**: Visual feedback during API calls
-- **Error Handling**: Graceful fallbacks and retry options
-- **Quick Questions**: Pre-defined questions that can be clicked to start conversations
-- **State Persistence**: Messages and session state maintained across re-renders
-- **Auto-scroll**: Chat automatically scrolls to show latest messages
-- **Course Generation**: Interactive Q&A flow for course creation
-- **Progress Tracking**: Visual progress indicators during generation
-- **Step Management**: Automatic step transitions based on completion status
-
-## Error Handling
-
-All contexts provide comprehensive error handling:
-- **API Failures**: Fallback messages and retry options
-- **Session Issues**: Automatic fallback to mock responses
-- **Network Problems**: User-friendly error messages with dismiss/retry options
-
-## Debugging
-
-Console logs are added to help debug:
-- Session initialization success/failure
-- Message sending and receiving
-- API response content
-- Course generation progress
-
-## Fallback Behavior
-
-If the API is unavailable, all components will:
-1. Show a fallback welcome message
-2. Display error notifications with dismiss/retry options
-3. Continue to function with mock responses for user experience
-
-## Performance Optimizations
-
-- **useCallback**: Prevents function recreation on every render
-- **Context Optimization**: Only re-renders components that actually use the context
-- **State Batching**: Efficient state updates to prevent unnecessary re-renders
-- **Auto-scroll**: Smooth scrolling without performance impact
-- **AbortController**: Prevents infinite loops and cancels outdated API requests
-- **Ref-based State Tracking**: Uses refs to prevent unnecessary re-renders during initialization
-
-## Auto-scroll Implementation
-
-All chat interfaces automatically scroll to the bottom when:
-- New user messages are added
-- AI responses are received
-- Loading states appear
-- Quick questions are clicked
-
-This provides a seamless user experience without manual scrolling.
-
-## AbortController Implementation
-
-### Problem Solved
-The Course Generator context was experiencing infinite loops due to:
-- **useEffect Dependencies**: The `initializeSession` function was being recreated on every render
-- **Multiple API Calls**: Multiple simultaneous requests could cause race conditions
-- **Memory Leaks**: Ongoing requests weren't properly cancelled
-
-### Solution Implemented
-- **AbortController**: Each API request uses an AbortController to cancel previous requests
-- **Ref-based Tracking**: Uses `useRef` to track initialization state without causing re-renders
-- **Single Initialization**: Session is only initialized once using an empty dependency array
-- **Request Cancellation**: New requests automatically cancel ongoing ones
-
-### How It Works
-```typescript
-// Abort any existing request before making a new one
-if (abortControllerRef.current) {
-  abortControllerRef.current.abort();
-}
-
-// Create new abort controller for current request
-abortControllerRef.current = new AbortController();
-
-// Use the signal in fetch requests
-const response = await fetch(url, {
-  signal: abortControllerRef.current.signal
-});
-```
-
-### Benefits
-- **No More Infinite Loops**: Session initialization only happens once
-- **Better Performance**: Cancels outdated requests automatically
-- **Memory Safety**: Prevents memory leaks from abandoned requests
-- **Race Condition Prevention**: Only the latest request completes
-- **Clean Component Lifecycle**: Proper cleanup on unmount
-
-## Course Generation Flow
-
-The Course Generator follows a specific flow:
-1. **Session Start**: Initialize session and get welcome message
-2. **Interactive Q&A**: User answers questions one by one
-3. **Progress Tracking**: Visual feedback for each completed question
-4. **Course Generation**: API generates course based on collected answers
-5. **Course Retrieval**: Fetch and display the generated course
-6. **Content Enhancement**: Option to generate full content and assessments
-
-### Step Management
-
-The context automatically manages the current step:
-- **"chat"**: Initial state for Q&A interaction
-- **"generating"**: Course generation in progress
-- **"completed"**: Course generation completed, ready for review
-- **"courseCreated"**: Course has been published and deployed
-
-Steps automatically transition based on:
-- **API Completion**: When `is_complete: true` is received, step changes to "completed"
-- **Manual Control**: Components can manually set steps using `setCurrentStep()`
-- **Session Reset**: Resetting session returns to "chat" step
+## Future Enhancements
+- Offline support for saved assessments
+- Real-time collaboration features
+- Advanced question type support
+- Integration with learning management systems
+- Analytics and reporting capabilities

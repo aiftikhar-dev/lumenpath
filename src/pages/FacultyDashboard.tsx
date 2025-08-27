@@ -27,6 +27,7 @@ import { FacultyAIAssistant } from "@/components/FacultyAIAssistant";
 import { ManualCourseCreator } from "@/components/ManualCourseCreator";
 import { CourseViewer } from "@/components/CourseViewer";
 import { CourseGeneratorProvider } from "@/contexts/CourseGeneratorContext";
+import { AssessmentProvider } from "@/contexts/AssessmentContext";
 
 const FacultyDashboard = () => {
   const [searchParams] = useSearchParams();
@@ -284,7 +285,9 @@ const FacultyDashboard = () => {
           )}
 
           {activeTab === "assessments" && (
-            <AIAssessmentCreator />
+                    <AssessmentProvider>
+          <AIAssessmentCreator />
+        </AssessmentProvider>
           )}
 
           {activeTab === "manual-create" && (

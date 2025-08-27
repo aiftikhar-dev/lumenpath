@@ -65,7 +65,9 @@ interface CourseGeneratorContextType {
   clearError: () => void;
 }
 
-const API_BASE_URL = "http://4.161.43.78/courses";
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api/courses' 
+  : 'http://4.161.43.78/courses';
 
 const CourseGeneratorContext = createContext<
   CourseGeneratorContextType | undefined

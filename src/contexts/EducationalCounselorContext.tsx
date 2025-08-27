@@ -28,7 +28,9 @@ interface EducationalCounselorContextType {
   clearError: () => void;
 }
 
-const API_BASE_URL = "http://4.161.43.78/educational-counselor";
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api/educational-counselor' 
+  : 'http://4.161.43.78/educational-counselor';
 
 const EducationalCounselorContext = createContext<EducationalCounselorContextType | undefined>(undefined);
 

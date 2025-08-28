@@ -1,6 +1,6 @@
-import JobRecommendations from "@/components/JobRecommendations";
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
+import JobRecommendationsMain from "@/sections/students/jobRecommendations/JobRecommendationsMain";
 import { useState } from "react";
 
 const JobRecommendationsView = () => {
@@ -8,12 +8,12 @@ const JobRecommendationsView = () => {
     totalJobs: 1247,
     appliedJobs: 8,
     interviewInvites: 3,
-    savedJobs: 25
+    savedJobs: 25,
   });
 
   return (
     <div className="space-y-6">
-     <WelcomeBanner
+      <WelcomeBanner
         userName="Ahmad"
         currentGoal="AI Researcher"
         overallProgress={34}
@@ -24,11 +24,11 @@ const JobRecommendationsView = () => {
           totalJobs: jobStats.totalJobs,
           appliedJobs: jobStats.appliedJobs,
           interviewInvites: jobStats.interviewInvites,
-          savedJobs: jobStats.savedJobs
+          savedJobs: jobStats.savedJobs,
         }}
       />
-      
-      <JobRecommendations />
+
+      <JobRecommendationsMain />
     </div>
   );
 };

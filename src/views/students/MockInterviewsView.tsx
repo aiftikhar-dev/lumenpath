@@ -1,7 +1,7 @@
-import MockInterviews from "@/components/MockInterviews";
 import QuickActions from "@/components/QuickActions";
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
+import MockInterviewsMain from "@/sections/students/mockInterviews/MockInterviewsTabs";
 import { useState } from "react";
 
 const MockInterviewsView = () => {
@@ -166,7 +166,7 @@ const MockInterviewsView = () => {
         currentCourses={currentCourses}
         setActiveCourse={() => {}}
       />
-      <MockInterviews />
+      <MockInterviewsMain />
     </div>
   );
 };

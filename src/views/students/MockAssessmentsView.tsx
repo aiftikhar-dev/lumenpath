@@ -1,6 +1,6 @@
-import MockAssessments from "@/components/MockAssessments";
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
+import MockAssessmentsMain from "@/sections/students/mockAssessments/MockAssessmentsMain";
 import { useState } from "react";
 
 const MockAssessmentsView = () => {
@@ -29,7 +29,7 @@ const MockAssessmentsView = () => {
         }}
       />
 
-      <MockAssessments />
+      <MockAssessmentsMain />
     </div>
   );
 };

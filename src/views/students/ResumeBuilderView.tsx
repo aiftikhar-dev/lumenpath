@@ -1,7 +1,7 @@
 import QuickActions from "@/components/QuickActions";
 import QuickStats from "@/components/QuickStats";
-import ResumeBuilder from "@/components/ResumeBuilder";
 import WelcomeBanner from "@/components/WelcomeBanner";
+import ResumeBuilderMain from "@/sections/students/resumeBuilder/ResumeBuilderMain";
 
 import { useState } from "react";
 
@@ -31,7 +31,7 @@ const ResumeBuilderView = () => {
           downloadCount: resumeStats.downloadCount,
         }}
       />
-      <ResumeBuilder />
+     <ResumeBuilderMain/>
     </div>
   );
 };

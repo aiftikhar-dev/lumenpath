@@ -1,7 +1,7 @@
-import LearnerProfile from "@/components/LearnerProfile";
 import QuickActions from "@/components/QuickActions";
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
+import LearnerProfileMain from "@/sections/students/profile/LearnerProfileMain";
 import { useState } from "react";
 
 const ProfileView = () => {
@@ -28,12 +28,8 @@ const ProfileView = () => {
           learningStreak: profileStats.learningStreak,
         }}
       />
-      <QuickActions currentCourses={undefined} setActiveCourse={undefined}/>
-     
-
-      <LearnerProfile onSave={function (profileData): void {
-        throw new Error("Function not implemented.");
-      } }/>
+      <QuickActions currentCourses={undefined} setActiveCourse={undefined} />
+      <LearnerProfileMain onSave={() => {}} />
     </div>
   );
 };

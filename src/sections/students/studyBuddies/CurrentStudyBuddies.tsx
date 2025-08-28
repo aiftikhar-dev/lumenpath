@@ -1,4 +1,4 @@
-import { StudyBuddyCard } from "@/components/StudyBuddyCard";
+import { StudyBuddyCard } from "@/sections/students/studyBuddies/StudyBuddyCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Users } from "lucide-react";

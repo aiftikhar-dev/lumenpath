@@ -1,7 +1,8 @@
 import QuickActions from "@/components/QuickActions";
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
-import MarketSkillComparison from "@/sections/students/marketSkills/MarketSkillComparison";
+import MarketSkillComparisonMain from "@/sections/students/marketSkills/MarketSkillComparisonMain";
+
 import { useState } from "react";
 
 const MarketSkillsComparisonView = () => {
@@ -35,7 +36,7 @@ const MarketSkillsComparisonView = () => {
       <QuickActions currentCourses={undefined} setActiveCourse={undefined} />
 
       
-      <MarketSkillComparison />
+      <MarketSkillComparisonMain />
     </div>
   );
 };

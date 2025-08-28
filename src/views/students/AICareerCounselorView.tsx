@@ -1,6 +1,6 @@
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
-import AICounselor from "@/sections/students/aiCareerCounselor/AICounselor";
+import AICareerCounselorMain from "@/sections/students/aiCareerCounselor/AICareerCounselorMain";
 import { useState } from "react";
 
 const AICareerCounselorView = () => {
@@ -58,8 +58,7 @@ const AICareerCounselorView = () => {
         }}
       />
       
-        <AICounselor />
-  
+      <AICareerCounselorMain/>
       
 
     </div>

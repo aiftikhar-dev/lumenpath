@@ -27,7 +27,7 @@ const App = () => (
           {/* Legacy route redirects */}
           <Route path="/admin" element={<LeadershipDashboard />} />
           <Route path="/instructor" element={<FacultyDashboard />} />
-          <Route path="/learner" element={<StudentDashboard />} />
+      
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

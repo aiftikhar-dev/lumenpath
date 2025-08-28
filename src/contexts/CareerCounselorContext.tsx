@@ -44,7 +44,7 @@ interface CareerCounselorProviderProps {
   children: ReactNode;
 }
 
-export const CareerCounselorProvider: React.FC<CareerCounselorProviderProps> = ({ children }) => {
+ const CareerCounselorProvider: React.FC<CareerCounselorProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -205,3 +205,5 @@ export const CareerCounselorProvider: React.FC<CareerCounselorProviderProps> = (
     </CareerCounselorContext.Provider>
   );
 };
+
+export default CareerCounselorProvider;

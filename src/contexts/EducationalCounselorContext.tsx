@@ -44,7 +44,7 @@ interface EducationalCounselorProviderProps {
   children: ReactNode;
 }
 
-export const EducationalCounselorProvider: React.FC<EducationalCounselorProviderProps> = ({ children }) => {
+ const EducationalCounselorProvider: React.FC<EducationalCounselorProviderProps> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -204,3 +204,5 @@ export const EducationalCounselorProvider: React.FC<EducationalCounselorProvider
     </EducationalCounselorContext.Provider>
   );
 };
+
+export default EducationalCounselorProvider;

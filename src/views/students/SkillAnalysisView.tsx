@@ -1,6 +1,7 @@
 import QuickStats from "@/components/QuickStats";
 import WelcomeBanner from "@/components/WelcomeBanner";
 import DetailedSkillAnalysis from "@/sections/students/skillAnalysis/DetailedSkillAnalysis";
+import SkillGapAnalysisMain from "@/sections/students/skillAnalysis/SkillGapAnalysisMain";
 import { useState } from "react";
 
 const SkillAnalysisView = () => {
@@ -30,6 +31,7 @@ const SkillAnalysisView = () => {
       />
 
       <DetailedSkillAnalysis />
+      <SkillGapAnalysisMain  />;
     </div>
   );
 };

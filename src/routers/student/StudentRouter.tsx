@@ -1,5 +1,12 @@
-import { lazy, Suspense, useState } from "react";
-import { Routes, Route, Navigate, useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { Fragment, lazy, Suspense, useState } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useSearchParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { studentRoutes } from "./routes";
 import { Loader2 } from "lucide-react";
 import { StudentSidebar } from "@/components/StudentSidebar";
@@ -10,13 +17,20 @@ import React from "react";
 
 // Lazy imports for all student pages
 const Dashboard = lazy(() => import("@/pages/students/Dashboard"));
-const AdaptiveLearning = lazy(() => import("@/pages/students/AdaptiveLearning"));
+const AdaptiveLearning = lazy(
+  () => import("@/pages/students/AdaptiveLearning")
+);
 const StudyBuddies = lazy(() => import("@/pages/students/StudyBuddies"));
-const Progress = lazy(() => import("@/pages/students/Progress"));
 const SkillAnalysis = lazy(() => import("@/pages/students/SkillAnalysis"));
-const MarketSkillsComparison = lazy(() => import("@/pages/students/MarketSkillsComparison"));
-const AICareerCounselor = lazy(() => import("@/pages/students/AICareerCounselor"));
-const AIEducationalCounselor = lazy(() => import("@/pages/students/AIEducationalCounselor"));
+const MarketSkillsComparison = lazy(
+  () => import("@/pages/students/MarketSkillsComparison")
+);
+const AICareerCounselor = lazy(
+  () => import("@/pages/students/AICareerCounselor")
+);
+const AIEducationalCounselor = lazy(
+  () => import("@/pages/students/AIEducationalCounselor")
+);
 const MockInterviews = lazy(() => import("@/pages/students/MockInterviews"));
 
 const Profile = lazy(() => import("@/pages/students/Profile"));
@@ -24,21 +38,28 @@ const ResumeBuilder = lazy(() => import("@/pages/students/ResumeBuilder"));
 const MockAssessments = lazy(() => import("@/pages/students/MockAssessments"));
 const Onboarding = lazy(() => import("@/pages/students/Onboarding"));
 const JobMatching = lazy(() => import("@/pages/students/JobRecommendations"));
+import CareerCounselorProvider from "@/contexts/CareerCounselorContext";
+import EducationalCounselorProvider from "@/contexts/EducationalCounselorContext";
+
 // Component mapping for dynamic rendering
 const componentMap = {
   Dashboard,
   AdaptiveLearning,
   StudyBuddies,
-  Progress,
   SkillAnalysis,
   MarketSkillsComparison,
   AICareerCounselor,
-  AIEducationalCounselor, 
+  AIEducationalCounselor,
   MockInterviews,
   Profile,
   ResumeBuilder,
   MockAssessments,
   JobMatching,
+};
+
+const providerMap = {
+  CareerCounselorProvider,
+  EducationalCounselorProvider,
 };
 
 // Loading fallback component
@@ -56,39 +77,39 @@ const StudentRouter = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  
+
   // Get current active tab from URL path
   const getCurrentTab = () => {
     const path = location.pathname;
-    const tab = path.split('/').pop();
-    
+    const tab = path.split("/").pop();
+
     // Map URL paths to tab IDs
     const pathToTabMap: { [key: string]: string } = {
-      'dashboard': 'dashboard',
-      'adaptive-learning': 'adaptive-learning',
-      'study-buddies': 'study-buddies',
-      'progress': 'progress',
-      'skill-analysis': 'skill-analysis',
-      'market-skills': 'market-skills',
-      'ai-career-counselor': 'ai-career-counselor',
-      'ai-educational-counselor': 'ai-educational-counselor',
-      'mock-interviews': 'mock-interviews',
-      'job-recommendations': 'job-recommendations',
-      'profile': 'profile',
-      'resume-builder': 'resume-builder',
-      'mock-assessments': 'mock-assessments',
+      dashboard: "dashboard",
+      "adaptive-learning": "adaptive-learning",
+      "study-buddies": "study-buddies",
+      progress: "progress",
+      "skill-analysis": "skill-analysis",
+      "market-skills": "market-skills",
+      "ai-career-counselor": "ai-career-counselor",
+      "ai-educational-counselor": "ai-educational-counselor",
+      "mock-interviews": "mock-interviews",
+      "job-recommendations": "job-recommendations",
+      profile: "profile",
+      "resume-builder": "resume-builder",
+      "mock-assessments": "mock-assessments",
     };
-    
-    return pathToTabMap[tab || ''] || 'dashboard';
+
+    return pathToTabMap[tab || ""] || "dashboard";
   };
 
   const [activeTab, setActiveTab] = useState(getCurrentTab);
 
   const handleTabChange = (tabValue: string) => {
     setActiveTab(tabValue);
-    
+
     // Find the navigation item to get the path
-    const navItem = studentNavigation.find(item => item.id === tabValue);
+    const navItem = studentNavigation.find((item) => item.id === tabValue);
     if (navItem) {
       // Navigate to the corresponding route
       navigate(`/student/${navItem.id}`);
@@ -123,13 +144,21 @@ const StudentRouter = () => {
                         componentMap[
                           childRoute.component as keyof typeof componentMap
                         ];
+                      const Provider =
+                        providerMap[
+                          childRoute.provider as keyof typeof providerMap
+                        ] ||Fragment;
 
                       if (childRoute.index) {
                         return (
                           <Route
                             key={childRoute.path || "index"}
                             index
-                            element={<Component />}
+                            element={
+                              <Provider>
+                                <Component />
+                              </Provider>
+                            }
                           />
                         );
                       }
@@ -138,7 +167,11 @@ const StudentRouter = () => {
                         <Route
                           key={childRoute.path}
                           path={childRoute.path}
-                          element={<Component />}
+                          element={
+                            <Provider>
+                              <Component />
+                            </Provider>
+                          }
                         />
                       );
                     })}
@@ -148,7 +181,7 @@ const StudentRouter = () => {
               </Routes>
             </Suspense>
           </main>
-          
+
           {/* AI Assistant */}
           <StudentAIAssistant />
         </div>

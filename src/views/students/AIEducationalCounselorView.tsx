@@ -1,6 +1,6 @@
 import QuickStats from "@/components/QuickStats";
 import PageHeader from "@/components/ui/PageHeader";
-import EducationalCounselor from "@/sections/students/aiEducationalCounselor/EducationalCounselor";
+import AIEducationalCounselorMain from "@/sections/students/aiEducationalCounselor/AIEducationalCounselorMain";
 import { useState } from "react";
 
 const AIEducationalCounselorView = () => {
@@ -28,7 +28,7 @@ const AIEducationalCounselorView = () => {
         }}
       />
       
-        <EducationalCounselor />
+      <AIEducationalCounselorMain />
 
     </div>
   );

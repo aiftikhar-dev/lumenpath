@@ -124,9 +124,9 @@ const CourseRecommendations = ({ onboardingData, onStartCourse, onCreateCustomCo
     // Filter and sort based on onboarding data
     return baseCourses
       .filter(course => {
-        if (onboardingData.role === "ai-researcher") return course.tags.includes("Research");
-        if (onboardingData.role === "devops-engineer") return course.tags.includes("MLOps") || course.tags.includes("Cloud");
-        if (onboardingData.role === "data-scientist") return course.tags.includes("Machine Learning") || course.tags.includes("Data Science");
+        if (onboardingData?.role === "ai-researcher") return course.tags.includes("Research");
+        if (onboardingData?.role === "devops-engineer") return course.tags.includes("MLOps") || course.tags.includes("Cloud");
+        if (onboardingData?.role === "data-scientist") return course.tags.includes("Machine Learning") || course.tags.includes("Data Science");
         return true;
       })
       .sort((a, b) => b.matchScore - a.matchScore);
@@ -303,7 +303,7 @@ const CourseRecommendations = ({ onboardingData, onStartCourse, onCreateCustomCo
         </div>
         <h1 className="text-3xl font-bold">Recommended Learning Paths</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Based on your goals as a <strong>{onboardingData.role?.replace('-', ' ')}</strong> and your interest in <strong>{onboardingData.interest}</strong>, 
+          Based on your goals as a <strong>{onboardingData?.role?.replace('-', ' ')}</strong> and your interest in <strong>{onboardingData?.interest}</strong>, 
           here are personalized course recommendations tailored to your experience level.
         </p>
       </div>

@@ -32,30 +32,7 @@ import {
   FileText,
   HelpCircle,
 } from "lucide-react";
-
-const mainNavItems = [
-  { title: "Dashboard", tabValue: "dashboard", icon: Home },
-  { title: "Adaptive Learning", tabValue: "adaptive-engine", icon: Brain },
-  { title: "Study Buddies", tabValue: "study-buddies", icon: Users },
-];
-
-const analysisItems = [
-  { title: "Skill Analysis", tabValue: "skill-analysis", icon: Target },
-  { title: "Market Skill Comparison", tabValue: "market-skill-comparison", icon: GitCompare },
-  { title: "Mock Interviews", tabValue: "mock-interviews", icon: MessageSquare },
-  { title: "Job Matching", tabValue: "job-recommendations", icon: Briefcase },
-  { title: "Mock Assessments", tabValue: "mock-assessments", icon: BarChart3 },
-];
-
-const counselorItems = [
-  { title: "AI Career Counselor", tabValue: "ai-career-counselor", icon: Briefcase },
-  { title: "AI Educational Counselor", tabValue: "ai-educational-counselor", icon: BookOpen },
-];
-
-const profileItems = [
-  { title: "Profile", tabValue: "profile", icon: User },
-  { title: "Resume Builder", tabValue: "resume-builder", icon: FileText },
-];
+import { studentNavigation } from "@/navigations/students.navigation";
 
 interface StudentSidebarProps {
   activeTab: string;
@@ -69,6 +46,52 @@ export function StudentSidebar({ activeTab, onTabChange, onShowOnboarding }: Stu
   const isActive = (tabValue: string) => activeTab === tabValue;
   const getNavCls = (tabValue: string) =>
     isActive(tabValue) ? "bg-primary/10 text-primary font-medium border-r-2 border-primary" : "hover:bg-muted/50";
+
+  // Group navigation items by category
+  const mainNavItems = studentNavigation.filter(item => 
+    ['dashboard', 'adaptive-learning', 'study-buddies'].includes(item.id)
+  );
+  
+  const analysisItems = studentNavigation.filter(item => 
+    ['skill-analysis', 'market-skills-comparison', "mock-interviews","job-matching","mock-assessments"].includes(item.id)
+  );
+  
+  const counselorItems = studentNavigation.filter(item => 
+    ['ai-career-counselor', 'ai-educational-counselor'].includes(item.id)
+  );
+
+  const profileItems = studentNavigation.filter(item => 
+    ['profile', 'resume-builder'].includes(item.id)
+  );
+
+  // Icon mapping for navigation items
+  const getIcon = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+      'Home': Home,
+      'Brain': Brain,
+      'Users': Users,
+      'Target': Target,
+      'MessageSquare': MessageSquare,
+      'BarChart3': BarChart3,
+      'Briefcase': Briefcase,
+      'GitCompare': GitCompare,
+      'User': User,
+      'FileText': FileText,
+      'BookOpen': BookOpen,
+      'Trophy': Trophy,
+      'TrendingUp': BarChart3,
+      'Video': MessageSquare,
+      'Heart': User,
+      'Star': Trophy,
+      'Award': Trophy,
+      'Eye': FileText,
+      'Zap': Brain,
+      'Play': MessageSquare,
+      'CheckCircle': Trophy,
+      'Timer': BarChart3,
+    };
+    return iconMap[iconName] || Home;
+  };
 
   return (
     <Sidebar className={state === "collapsed" ? "w-16" : "w-64"} collapsible="icon">
@@ -107,19 +130,22 @@ export function StudentSidebar({ activeTab, onTabChange, onShowOnboarding }: Stu
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {mainNavItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <button
-                        onClick={() => onTabChange(item.tabValue)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.tabValue)}`}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {state !== "collapsed" && <span>{item.title}</span>}
-                      </button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {mainNavItems.map((item) => {
+                  const IconComponent = getIcon(item.icon);
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton asChild>
+                        <button
+                          onClick={() => onTabChange(item.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.id)}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          {state !== "collapsed" && <span>{item.title}</span>}
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -130,19 +156,22 @@ export function StudentSidebar({ activeTab, onTabChange, onShowOnboarding }: Stu
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {analysisItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <button
-                        onClick={() => onTabChange(item.tabValue)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.tabValue)}`}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {state !== "collapsed" && <span>{item.title}</span>}
-                      </button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {analysisItems.map((item) => {
+                  const IconComponent = getIcon(item.icon);
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton asChild>
+                        <button
+                          onClick={() => onTabChange(item.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.id)}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          {state !== "collapsed" && <span>{item.title}</span>}
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -153,19 +182,22 @@ export function StudentSidebar({ activeTab, onTabChange, onShowOnboarding }: Stu
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {counselorItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <button
-                        onClick={() => onTabChange(item.tabValue)}
-                        className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.tabValue)}`}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {state !== "collapsed" && <span>{item.title}</span>}
-                      </button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {counselorItems.map((item) => {
+                  const IconComponent = getIcon(item.icon);
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton asChild>
+                        <button
+                          onClick={() => onTabChange(item.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.id)}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          {state !== "collapsed" && <span>{item.title}</span>}
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -176,21 +208,22 @@ export function StudentSidebar({ activeTab, onTabChange, onShowOnboarding }: Stu
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {profileItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <button
-                        onClick={() => {
-                  onTabChange(item.tabValue);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.tabValue)}`}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        {state !== "collapsed" && <span>{item.title}</span>}
-                      </button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {profileItems.map((item) => {
+                  const IconComponent = getIcon(item.icon);
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton asChild>
+                        <button
+                          onClick={() => onTabChange(item.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors ${getNavCls(item.id)}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          {state !== "collapsed" && <span>{item.title}</span>}
+                        </button>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

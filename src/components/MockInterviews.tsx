@@ -1,24 +1,24 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Play, 
-  Mic, 
-  Video, 
-  Clock, 
-  Target, 
-  Trophy,
-  TrendingUp,
-  BookOpen,
-  ChevronRight,
-  Star,
+import {
   BarChart3,
+  BookOpen,
   CheckCircle,
-  Lightbulb
+  ChevronRight,
+  Clock,
+  Lightbulb,
+  Mic,
+  Play,
+  Star,
+  Target,
+  TrendingUp,
+  Trophy,
+  Video
 } from "lucide-react";
+import { useState } from "react";
 import MockHeyGenAvatar from "./MockHeyGenAvatar";
 
 const MockInterviews = () => {

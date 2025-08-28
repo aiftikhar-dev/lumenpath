@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { AssessmentGenerator } from "./AssessmentGenerator";
-import { CoursePreview } from "./CoursePreview";
+// import { CoursePreview } from "./CoursePreview";
 import { FullCourseView } from "./FullCourseView";
 import { MyCoursesViewer } from "./MyCoursesViewer";
 import { useCourseGenerator } from "@/contexts/CourseGeneratorContext";
@@ -1050,12 +1050,12 @@ export const CourseGenerator = () => {
         />
       )}
 
-      {showCoursePreview && (apiGeneratedCourse) && (
+      {/* {showCoursePreview && (apiGeneratedCourse) && (
         <CoursePreview 
           course={apiGeneratedCourse} 
           onClose={() => setShowCoursePreview(false)}
         />
-      )}
+      )} */}
 
       {showAssessmentGenerator && (
         <AssessmentGenerator 

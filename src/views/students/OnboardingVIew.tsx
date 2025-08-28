@@ -1,26 +1,25 @@
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import CourseRecommendations from "@/components/CourseRecommendations";
+import CustomCourseCreator from "@/components/CustomCourseCreator";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Brain, 
-  Target, 
-  Code, 
-  Zap, 
-  Building, 
-  Search,
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import {
   ArrowRight,
+  Brain,
+  Building,
   CheckCircle,
-  Sparkles
+  Code,
+  Search,
+  Sparkles,
+  Target,
+  Zap
 } from "lucide-react";
-import CourseRecommendations from "./CourseRecommendations";
-import CustomCourseCreator from "./CustomCourseCreator";
+import { useState } from "react";
 
 interface OnboardingFlowProps {
   onComplete: (data: OnboardingData) => void;
@@ -36,7 +35,7 @@ export interface OnboardingData {
   preferredPace: string;
 }
 
-const OnboardingFlow = ({ onComplete, onStartCourse }: OnboardingFlowProps) => {
+const OnboardingView = ({ onComplete, onStartCourse }: OnboardingFlowProps) => {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<Partial<OnboardingData>>({
     experience: []
@@ -341,4 +340,4 @@ const OnboardingFlow = ({ onComplete, onStartCourse }: OnboardingFlowProps) => {
   );
 };
 
-export default OnboardingFlow;
+export default OnboardingView;

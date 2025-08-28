@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,20 +8,21 @@ import FacultyDashboard from "./pages/FacultyDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import SystemFlowPage from "./pages/SystemFlowPage";
 import NotFound from "./pages/NotFound";
+import StudentRouter from "@/routers/student/StudentRouter";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
       <Sonner />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/leadership" element={<LeadershipDashboard />} />
           <Route path="/faculty" element={<FacultyDashboard />} />
-          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/student/*" element={<StudentRouter />} />
+    
           <Route path="/help/system-flow" element={<SystemFlowPage />} />
           {/* Legacy route redirects */}
           <Route path="/admin" element={<LeadershipDashboard />} />

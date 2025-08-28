@@ -33,7 +33,7 @@ interface CoursePreviewProps {
   onClose: () => void;
 }
 
-export const CoursePreview = ({ course, onClose }: CoursePreviewProps) => {
+ const CoursePreview = ({ course, onClose }: CoursePreviewProps) => {
   const [currentModule, setCurrentModule] = useState(0);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [enrollmentProgress, setEnrollmentProgress] = useState(45);
@@ -151,7 +151,7 @@ export const CoursePreview = ({ course, onClose }: CoursePreviewProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 top-[-24px] flex items-center justify-center z-50 p-4">
       <div className="bg-card rounded-lg shadow-xl w-full max-w-7xl h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center space-x-3">
@@ -628,3 +628,5 @@ export const CoursePreview = ({ course, onClose }: CoursePreviewProps) => {
     </div>
   );
 };
+
+export default CoursePreview;

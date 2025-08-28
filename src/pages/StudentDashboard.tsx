@@ -28,7 +28,7 @@ import OnboardingFlow, { OnboardingData } from "@/components/OnboardingFlow";
 import AdaptiveLearningEngine from "@/components/AdaptiveLearningEngine";
 import CourseRecommendations from "@/components/CourseRecommendations";
 import LearnerProfile from "@/components/LearnerProfile";
-import { CoursePreview } from "@/components/CoursePreview";
+// import { CoursePreview } from "@/components/CoursePreview";
 import { BuddyFinder } from "@/components/BuddyFinder";
 import SkillGapAnalysis from "@/components/SkillGapAnalysis";
 import MockInterviews from "@/components/MockInterviews";
@@ -309,14 +309,14 @@ const StudentDashboard = () => {
   }
 
   // Show course preview when a course is started
-  if (activeCourse) {
-    return (
-      <CoursePreview 
-        course={activeCourse}
-        onClose={() => setActiveCourse(null)}
-      />
-    );
-  }
+  // if (activeCourse) {
+  //   return (
+  //     <CoursePreview 
+  //       course={activeCourse}
+  //       onClose={() => setActiveCourse(null)}
+  //     />
+  //   );
+  // }
 
   return (
     <SidebarProvider>

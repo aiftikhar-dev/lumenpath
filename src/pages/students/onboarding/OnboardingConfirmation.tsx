@@ -1,9 +1,9 @@
 import OnboardingConfirmationView from '@/views/students/onboarding/OnboardingConfirmationView'
 
-function Confirmation() {
+function OnboardingConfirmation() {
   return (
     <OnboardingConfirmationView />
   )
 }
 
-export default Confirmation
+export default OnboardingConfirmation

@@ -10,7 +10,7 @@ function OnboardingConfirmaiton() {
     }
     
     const handleUpdate = () => {
-        navigate("/student/onboarding");
+        navigate("/student/onboarding/learning-path");
     }
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

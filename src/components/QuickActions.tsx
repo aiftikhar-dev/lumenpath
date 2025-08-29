@@ -43,7 +43,7 @@ const QuickActions = ({currentCourses, setActiveCourse}: {currentCourses: any, s
       <Button
         variant="outline"
         size="sm"
-        onClick={() => navigate("/student/onboarding")}
+        onClick={() => navigate("/student/onboarding/confirmation")}
       >
         <Settings className="w-4 h-4 mr-2" />
         AI Career Path

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export interface OnboardingData {
   role: string;
@@ -10,11 +11,6 @@ export interface OnboardingData {
 }
 
 interface OnboardingContextType {
-  // Current step and progress
-  step: number;
-  totalSteps: number;
-  progress: number;
-  
   // Onboarding data
   data: Partial<OnboardingData>;
   completedData: OnboardingData | null;
@@ -23,13 +19,17 @@ interface OnboardingContextType {
   showRecommendations: boolean;
   showCustomCreator: boolean;
   
-  // Step validation
-  isStepValid: () => boolean;
+  // Page navigation
+  currentPage: string;
+  availablePages: string[];
   
-  // Navigation functions
-  nextStep: () => void;
-  previousStep: () => void;
-  goToStep: (step: number) => void;
+  // Page navigation functions
+  goToPage: (pageName: string) => void;
+  nextPage: () => void;
+  previousPage: () => void;
+  canGoToNextPage: () => boolean;
+  canGoToPreviousPage: () => boolean;
+  goToFirstPage: () => void;
   
   // Data management
   updateData: (updates: Partial<OnboardingData>) => void;
@@ -57,6 +57,10 @@ interface OnboardingContextType {
   // Course management
   startCourse: (courseId: string) => void;
   createCustomCourse: () => void;
+  
+  // Navigation handlers
+  handleNext: () => void;
+  handlePrevious: () => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -72,49 +76,68 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({
   onComplete, 
   onStartCourse 
 }) => {
-  const [step, setStep] = useState(1);
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  
   const [data, setData] = useState<Partial<OnboardingData>>({
     experience: []
   });
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [showCustomCreator, setShowCustomCreator] = useState(false);
   const [completedData, setCompletedData] = useState<OnboardingData | null>(null);
+  
+  // Page navigation state
+  const [currentPage, setCurrentPage] = useState("confirmation");
+  const availablePages = ["confirmation", "learning-path", "assessment", "profile-setup", "completion"];
 
-  const totalSteps = 5;
-  const progress = (step / totalSteps) * 100;
+  // Page navigation functions
+  const navigate = useNavigate();
+  const baseUrl = '/student/onboarding';
 
-  const isStepValid = (): boolean => {
-    switch (step) {
-      case 1: return !!data.role;
-      case 2: return !!data.goal;
-      case 3: return data.experience && data.experience.length > 0;
-      case 4: return !!data.interest;
-      case 5: return !!(data.background && data.preferredPace);
-      default: return false;
+  const goToPage = (pageName: string) => {
+    if (availablePages.includes(pageName)) {
+      setCurrentPage(pageName);
+      navigate(`${baseUrl}/${pageName}`);
     }
   };
 
-  const nextStep = () => {
-    if (step < totalSteps && isStepValid()) {
-      setStep(step + 1);
-    } else if (step === totalSteps && isStepValid()) {
-      const completeData = data as OnboardingData;
-      setCompletedData(completeData);
-      setShowRecommendations(true);
-      onComplete?.(completeData);
+  const nextPage = () => {
+    const currentIndex = availablePages.indexOf(currentPage);
+   
+    
+    if (currentIndex < availablePages.length - 1) {
+      const nextPageName = availablePages[currentIndex + 1];
+      console.log(nextPageName,availablePages,currentIndex);
+      
+      setCurrentPage(nextPageName);
+      navigate(`${baseUrl}/${nextPageName}`);
     }
   };
 
-  const previousStep = () => {
-    if (step > 1) {
-      setStep(step - 1);
+  const previousPage = () => {
+    const currentIndex = availablePages.indexOf(currentPage);
+    if (currentIndex > 0) {
+      const prevPageName = availablePages[currentIndex - 1];
+      setCurrentPage(prevPageName);
+      navigate(`${baseUrl}/${prevPageName}`);
     }
   };
 
-  const goToStep = (targetStep: number) => {
-    if (targetStep >= 1 && targetStep <= totalSteps) {
-      setStep(targetStep);
-    }
+  const canGoToNextPage = () => {
+    const currentIndex = availablePages.indexOf(currentPage);
+    return currentIndex < availablePages.length - 1;
+  };
+
+  const canGoToPreviousPage = () => {
+    const currentIndex = availablePages.indexOf(currentPage);
+    return currentIndex > 0;
+  };
+
+  const goToFirstPage = () => {
+    const firstPage = availablePages[0];
+    setCurrentPage(firstPage);
+    navigate(`${baseUrl}/${firstPage}`);
   };
 
   const updateData = (updates: Partial<OnboardingData>) => {
@@ -186,14 +209,40 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({
     setCompletedData(completeData);
     setShowRecommendations(true);
     onComplete?.(completeData);
+    navigate(`/student`);
   };
 
   const resetOnboarding = () => {
-    setStep(1);
     setData({ experience: [] });
     setShowRecommendations(false);
     setShowCustomCreator(false);
     setCompletedData(null);
+    setCurrentPage("confirmation");
+    navigate(`${baseUrl}/confirmation`);
+  };
+
+  const handleNext = () => {
+    // Save current page data (data is already saved in context state)
+    console.log('Saving data for page', currentPage, ':', data);
+    console.log(canGoToNextPage());
+    
+    // Navigate to next page if available
+    if (canGoToNextPage()) {
+      nextPage();
+    } else {
+      // If no more pages, complete onboarding
+      completeOnboarding();
+    }
+  };
+
+  const handlePrevious = () => {
+    // Save current page data before going back
+    console.log('Saving data for page', currentPage, 'before going back:', data);
+    
+    // Navigate to previous page if available
+    if (canGoToPreviousPage()) {
+      previousPage();
+    }
   };
 
   const startCourse = (courseId: string) => {
@@ -205,18 +254,27 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({
     setShowRecommendations(false);
   };
 
+  useEffect(() => {
+    const page = pathname.split('/').pop();
+    if (page && availablePages.includes(page)) {
+      setCurrentPage(page);
+    }
+   
+  }, [pathname]);
+
   const contextValue: OnboardingContextType = {
-    step,
-    totalSteps,
-    progress,
     data,
     completedData,
     showRecommendations,
     showCustomCreator,
-    isStepValid,
-    nextStep,
-    previousStep,
-    goToStep,
+    currentPage,
+    availablePages,
+    goToPage,
+    nextPage,
+    previousPage,
+    canGoToNextPage,
+    canGoToPreviousPage,
+    goToFirstPage,
     updateData,
     updateRole,
     updateGoal,
@@ -234,6 +292,8 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({
     resetOnboarding,
     startCourse,
     createCustomCourse,
+    handleNext,
+    handlePrevious
   };
 
   return (

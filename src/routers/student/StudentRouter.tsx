@@ -7,6 +7,7 @@ import React, { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { studentRoutes } from "./routes";
 import { OnboardingProvider } from "@/contexts/StudentOnboardingContext";
+import BlankLayout from "@/layouts/BlankLayout";
 
 // Lazy imports for all student pages
 const Dashboard = lazy(() => import("@/pages/students/Dashboard"));
@@ -58,6 +59,7 @@ const providerMap = {
 
 const layoutMap = {
   StudentLayout,
+  BlankLayout,
 };
 
 // Loading fallback component
@@ -72,7 +74,7 @@ const LoadingFallback = () => (
 
 // StudentRouter component
 const StudentRouter = () => {
-
+  console.log({ studentRoutes });
 
   return (
     <SidebarProvider>

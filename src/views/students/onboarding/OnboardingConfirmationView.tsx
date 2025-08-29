@@ -1,4 +1,4 @@
-import OnboardingConfirmaiton from '@/sections/students/onboarding/onboardingConfirmaiton'
+import OnboardingConfirmaiton from '@/sections/students/onboarding/OnboardingConfirmaiton'
 
 function OnboardingConfirmationView() {
   return (

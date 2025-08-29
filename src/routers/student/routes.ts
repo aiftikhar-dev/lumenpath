@@ -67,12 +67,55 @@ export const studentRoutes = [
         path: "onboarding/*",
         component: "OnboardingRouter",
         provider: "OnboardingProvider",
+        layout: "BlankLayout",
       },
 
       // Add more routes as needed
     ],
+    
+  },
+];
+
+export const onboardingRoutes = [
+  {
+    path: "/",
+    children: [
+      {
+        path: "confirmation",
+        component: "OnboardingConfirmation",
+        layout: "BlankLayout",
+      },
+      {
+        path: "learning-path",
+        component: "OnboardingLearningPath",
+        layout: "OnBoardingLayout",
+      },
+      {
+        path: "assessment",
+        component: "OnboardingAssessment",
+        layout: "OnBoardingLayout",
+      },
+      
+      {
+        path: "profile-setup",
+        component: "OnboardingProfile",
+        layout: "OnBoardingLayout",
+      },
+      
+      {
+        path: "completion",
+        component: "OnboardingCompletion",
+        layout: "OnBoardingLayout",
+      },
+    ],
+    
   },
 ];
 
 export type StudentRoute = (typeof studentRoutes)[0];
 export type StudentRouteConfig = (typeof studentRoutes)[0]["children"][0];
+
+export type OnboardingRoute = (typeof onboardingRoutes)[0];
+export type OnboardingRouteConfig = (typeof onboardingRoutes)[0]["children"][0];
+
+

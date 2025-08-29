@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useNavigate } from "react-router-dom"
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -26,6 +27,8 @@ const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
   state: "expanded" | "collapsed"
+  activeTab: string
+  handleTabChange: (tab: string) => void
   open: boolean
   setOpen: (open: boolean) => void
   openMobile: boolean
@@ -45,11 +48,14 @@ function useSidebar() {
   return context
 }
 
+
+
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     defaultOpen?: boolean
     open?: boolean
+    panel?: "student" | "admin"
     onOpenChange?: (open: boolean) => void
   }
 >(
@@ -60,6 +66,7 @@ const SidebarProvider = React.forwardRef<
       onOpenChange: setOpenProp,
       className,
       style,
+      panel = "student",
       children,
       ...props
     },
@@ -67,7 +74,8 @@ const SidebarProvider = React.forwardRef<
   ) => {
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
-
+    const [activeTab, setActiveTab] = React.useState("dashboard")
+    const navigate = useNavigate()
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen)
@@ -86,7 +94,14 @@ const SidebarProvider = React.forwardRef<
       },
       [setOpenProp, open]
     )
-
+    const handleTabChange = React.useCallback((tab: string) => {
+      setActiveTab(tab)
+      if (panel === "student") {
+        navigate(`/student/${tab}`)
+      } else {
+        navigate(`/admin/${tab}`)
+      }
+    }, [setActiveTab])
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
       return isMobile
@@ -123,8 +138,10 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        activeTab,
+        handleTabChange,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, activeTab, setActiveTab]
     )
 
     return (

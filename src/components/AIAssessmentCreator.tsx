@@ -36,7 +36,6 @@ import { useEffect, useRef, useState } from "react";
 export const AIAssessmentCreator = () => {
   const {
     currentSession,
-    isSessionActive,
     isLoading,
     isGeneratingAssessment,
     messages,
@@ -130,6 +129,11 @@ export const AIAssessmentCreator = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Debug sessionConfig changes
+  useEffect(() => {
+    console.log('sessionConfig changed:', sessionConfig);
+  }, [sessionConfig]);
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -153,7 +157,12 @@ export const AIAssessmentCreator = () => {
           trimmedResponse.toLowerCase().includes(opt.toLowerCase())
       );
       if (option) {
-        setSessionConfig((prev) => ({ ...prev, [currentQuestion.id]: option }));
+        console.log(`Setting ${currentQuestion.id} to:`, option);
+        setSessionConfig((prev) => {
+          const newConfig = { ...prev, [currentQuestion.id]: option };
+          console.log('Updated sessionConfig:', newConfig);
+          return newConfig;
+        });
       }
     } else if (currentQuestion.type === "number") {
       const num = parseInt(trimmedResponse);
@@ -162,14 +171,20 @@ export const AIAssessmentCreator = () => {
         num >= (currentQuestion.min || 0) &&
         num <= (currentQuestion.max || 50)
       ) {
-        setSessionConfig((prev) => ({ ...prev, [currentQuestion.id]: num }));
+        console.log(`Setting ${currentQuestion.id} to:`, num);
+        setSessionConfig((prev) => {
+          const newConfig = { ...prev, [currentQuestion.id]: num };
+          console.log('Updated sessionConfig:', newConfig);
+          return newConfig;
+        });
       }
     } else {
       // For text type (like topic), ensure we capture the response properly
       if (trimmedResponse) {
+        console.log(`Setting ${currentQuestion.id} to:`, trimmedResponse);
         setSessionConfig((prev) => {
           const newConfig = { ...prev, [currentQuestion.id]: trimmedResponse };
-
+          console.log('Updated sessionConfig:', newConfig);
           return newConfig;
         });
       }
@@ -699,55 +714,32 @@ export const AIAssessmentCreator = () => {
               <CardTitle className="text-lg">Session Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {!currentSession ? (
-                <div className="space-y-3">
-                  <div className="text-sm text-muted-foreground">
-                    Configuration Progress: {currentQuestionIndex + 1}/
-                    {configQuestions.length}
-                  </div>
-                  {Object.entries(sessionConfig).map(
-                    ([key, value]) =>
-                      value && (
-                        <div key={key} className="flex items-center space-x-2">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-sm font-medium">
-                            {key
-                              .replace("_", " ")
-                              .replace(/\b\w/g, (l) => l.toUpperCase())}
-                            : {value}
-                          </span>
-                        </div>
-                      )
-                  )}
-                </div>
-              ) : (
-                <>
+          
                   <div className="flex items-center space-x-2">
                     <Target className="w-4 h-4 text-ai-primary" />
                     <span className="text-sm font-medium">
-                      Topic: {currentSession.topic}
+                      Topic: {currentSession?.topic || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Award className="w-4 h-4 text-ai-primary" />
                     <span className="text-sm font-medium">
-                      Type: {currentSession.assessment_type}
+                      Type: {currentSession?.assessment_type || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <HelpCircle className="w-4 h-4 text-ai-primary" />
                     <span className="text-sm font-medium">
-                      Difficulty: {currentSession.difficulty}
+                      Difficulty: {currentSession?.difficulty || "N/A"}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4 text-ai-primary" />
                     <span className="text-sm font-medium">
-                      Questions: {currentSession.total_questions}
+                      Questions: {currentSession?.total_questions || "N/A"}
                     </span>
                   </div>
-                </>
-              )}
+                
             </CardContent>
           </Card>
 

@@ -73,10 +73,6 @@ interface AssessmentContextType {
   currentSession: SessionResponse | null;
   isSessionActive: boolean;
   
-  // Form state
-  sessionFormData: AssessmentSession;
-  setSessionFormData: (data: AssessmentSession) => void;
-  
   // Messages state
   messages: Message[];
   setMessages: (messages: Message[]) => void;
@@ -112,7 +108,7 @@ interface AssessmentContextType {
   
   // Utility functions
   resetSession: () => void;
-  handleCreateSession: () => Promise<void>;
+  handleCreateSession: (finalConfig: AssessmentSession) => Promise<void>;
   handleSendMessage: (inputText: string) => Promise<void>;
   saveAssessment: () => void;
 }
@@ -127,15 +123,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingAssessment, setIsGeneratingAssessment] = useState(false);
   
-  // Form state
-  const [sessionFormData, setSessionFormData] = useState<AssessmentSession>({
-    assessment_type: "Online Assessment",
-    topic: "",
-    difficulty: "Easy",
-    short_answer_count: 5,
-    mcq_count: 10,
-    true_false_count: 5
-  });
+
   
   // Messages state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -177,10 +165,11 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
         ...data,
         ...sessionData
       });
+      
       setIsSessionActive(true);
       return data;
     } catch (error) {
-      console.error('Error creating session:', error);
+      
       throw error;
     } finally {
       setIsLoading(false);
@@ -205,7 +194,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
       const data: ChatResponse = await response.json();
       return data;
     } catch (error) {
-      console.error('Error sending chat message:', error);
+     
       throw error;
     } finally {
       setIsLoading(false);
@@ -224,7 +213,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
       const data: SessionResponse = await response.json();
       return data;
     } catch (error) {
-      console.error('Error getting assessment:', error);
+     
       throw error;
     } finally {
       setIsLoading(false);
@@ -239,21 +228,22 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
     setCurrentSession(null);
   };
 
-  const handleCreateSession = async () => {
+
+  const handleCreateSession = async (finalConfig: AssessmentSession) => {
     try {
-       await createSession(sessionFormData);
+       await createSession(finalConfig);
       setShowSessionForm(false);
-      
+
       // Add welcome message
       const welcomeMessage: Message = {
         id: Date.now().toString(),
-        text: `Great! I've created an assessment session for "${sessionFormData.topic}". Let's start building your assessment together. What would you like to focus on first?`,
+        text: `Great! I've created an assessment session for "${finalConfig?.topic}". Let's start building your assessment together. What would you like to focus on first?`,
         sender: 'bot',
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     } catch (error) {
-      console.error('Failed to create session:', error);
+     
       // You could add error handling UI here
     }
   };
@@ -362,7 +352,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
         addMessage(botMessage);
       }
     } catch (error) {
-      console.error('Failed to send message:', error);
+     
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: "Sorry, I encountered an error. Please try again.",
@@ -399,8 +389,7 @@ export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const value: AssessmentContextType = {
     currentSession,
     isSessionActive,
-    sessionFormData,
-    setSessionFormData,
+
     messages,
     setMessages,
     addMessage,

@@ -1,6 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAssessment } from "@/contexts/AssessmentContext";
@@ -23,21 +29,17 @@ import {
   Target,
   User,
   Users,
-  Wand2
+  Wand2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export const AIAssessmentCreator = () => {
-  const { 
-    currentSession, 
-    isSessionActive, 
+  const {
+    currentSession,
+    isSessionActive,
     isLoading,
     isGeneratingAssessment,
-    sessionFormData,
-    setSessionFormData,
     messages,
-    showSessionForm,
-    setShowSessionForm,
     showAssessment,
     setShowAssessment,
     activeView,
@@ -46,16 +48,82 @@ export const AIAssessmentCreator = () => {
     resetSession,
     handleCreateSession,
     handleSendMessage,
-    saveAssessment
+    saveAssessment,
   } = useAssessment();
 
   const [inputText, setInputText] = useState("");
+  const [isConfiguringSession, setIsConfiguringSession] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [sessionConfig, setSessionConfig] = useState({
+    assessment_type: "",
+    difficulty: "",
+    topic: "",
+    mcq_count: 0,
+    short_answer_count: 0,
+    true_false_count: 0,
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Show session form when component mounts
+  // Configuration questions
+  const configQuestions = [
+    {
+      id: "assessment_type",
+      question: "What type of assessment would you like to create?",
+      options: ["Online Assessment", "Quiz", "Exam", "Practice Test"],
+      type: "select",
+    },
+    {
+      id: "difficulty",
+      question: "What difficulty level should the assessment have?",
+      options: ["Easy", "Medium", "Hard"],
+      type: "select",
+    },
+    {
+      id: "topic",
+      question:
+        "What topic or subject should the assessment cover? (e.g., Machine Learning, Data Structures, Mathematics)",
+      type: "text",
+    },
+    {
+      id: "mcq_count",
+      question: "How many multiple choice questions would you like? (0-50)",
+      type: "number",
+      min: 0,
+      max: 50,
+    },
+    {
+      id: "short_answer_count",
+      question: "How many short answer questions would you like? (0-20)",
+      type: "number",
+      min: 0,
+      max: 20,
+    },
+    {
+      id: "true_false_count",
+      question: "How many true/false questions would you like? (0-20)",
+      type: "number",
+      min: 0,
+      max: 20,
+    },
+  ];
+
+  // Show configuration questions if no session exists
   useEffect(() => {
-    setShowSessionForm(true);
-  }, [setShowSessionForm]);
+    if (!currentSession && !isConfiguringSession) {
+      setIsConfiguringSession(true);
+      // Add initial AI message
+      if (messages.length === 0) {
+        handleSendMessage(
+          "Hi! I'll help you create an assessment. Let me ask you a few questions to get started."
+        );
+      }
+    }
+  }, [
+    currentSession,
+    isConfiguringSession,
+    messages.length,
+    handleSendMessage,
+  ]);
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -63,154 +131,103 @@ export const AIAssessmentCreator = () => {
   }, [messages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (inputText.trim()) {
-        handleSendMessage(inputText);
+        handleUserMessage(inputText);
         setInputText("");
       }
     }
   };
 
-  // Session Creation Form
-  if (showSessionForm) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold flex items-center">
-              <Brain className="w-6 h-6 mr-2 text-ai-primary" />
-              Create New Assessment Session
-            </h2>
-            <p className="text-muted-foreground">Configure your assessment parameters to get started</p>
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => setActiveView('my-assessments')}
-          >
-            <FileCheck className="w-4 h-4 mr-2" />
-            My Assessments ({savedAssessments.length})
-          </Button>
-        </div>
+  const handleConfigResponse = (response: string) => {
+    const currentQuestion = configQuestions[currentQuestionIndex];
 
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Wand2 className="w-5 h-5 mr-2 text-ai-primary" />
-              Assessment Configuration
-            </CardTitle>
-            <CardDescription>
-              Fill in the details below to create your assessment session
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Assessment Type</label>
-                <select
-                  value={sessionFormData.assessment_type}
-                  onChange={(e) => setSessionFormData({ ...sessionFormData, assessment_type: e.target.value })}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="Online Assessment">Online Assessment</option>
-                  <option value="Quiz">Quiz</option>
-                  <option value="Exam">Exam</option>
-                  <option value="Practice Test">Practice Test</option>
-                </select>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Difficulty Level</label>
-                <select
-                  value={sessionFormData.difficulty}
-                  onChange={(e) => setSessionFormData({ ...sessionFormData, difficulty: e.target.value })}
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
-                </select>
-              </div>
-            </div>
+    // Trim the response to remove extra whitespace
+    const trimmedResponse = response.trim();
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Topic</label>
-              <Input
-                value={sessionFormData.topic}
-                onChange={(e) => setSessionFormData({ ...sessionFormData, topic: e.target.value })}
-                placeholder="e.g., Machine Learning, Data Structures, Mathematics"
-                className="w-full"
-              />
-            </div>
+    if (currentQuestion.type === "select") {
+      const option = currentQuestion.options.find(
+        (opt) =>
+          opt.toLowerCase().includes(trimmedResponse.toLowerCase()) ||
+          trimmedResponse.toLowerCase().includes(opt.toLowerCase())
+      );
+      if (option) {
+        setSessionConfig((prev) => ({ ...prev, [currentQuestion.id]: option }));
+      }
+    } else if (currentQuestion.type === "number") {
+      const num = parseInt(trimmedResponse);
+      if (
+        !isNaN(num) &&
+        num >= (currentQuestion.min || 0) &&
+        num <= (currentQuestion.max || 50)
+      ) {
+        setSessionConfig((prev) => ({ ...prev, [currentQuestion.id]: num }));
+      }
+    } else {
+      // For text type (like topic), ensure we capture the response properly
+      if (trimmedResponse) {
+        setSessionConfig((prev) => {
+          const newConfig = { ...prev, [currentQuestion.id]: trimmedResponse };
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">MCQ Questions</label>
-                <Input
-                  type="number"
-                  value={sessionFormData.mcq_count}
-                  onChange={(e) => setSessionFormData({ ...sessionFormData, mcq_count: parseInt(e.target.value) || 0 })}
-                  min="0"
-                  max="50"
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Short Answer</label>
-                <Input
-                  type="number"
-                  value={sessionFormData.short_answer_count}
-                  onChange={(e) => setSessionFormData({ ...sessionFormData, short_answer_count: parseInt(e.target.value) || 0 })}
-                  min="0"
-                  max="20"
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">True/False</label>
-                <Input
-                  type="number"
-                  value={sessionFormData.true_false_count}
-                  onChange={(e) => setSessionFormData({ ...sessionFormData, true_false_count: parseInt(e.target.value) || 0 })}
-                  min="0"
-                  max="20"
-                  className="w-full"
-                />
-              </div>
-            </div>
+          return newConfig;
+        });
+      }
+    }
 
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setActiveView('my-assessments')}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreateSession}
-                disabled={!sessionFormData.topic.trim() || isLoading}
-                className="bg-ai-primary hover:bg-ai-primary/90"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating Session...
-                  </>
-                ) : (
-                  <>
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    Create Session
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+    // Move to next question or create session
+    if (currentQuestionIndex < configQuestions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const nextQuestion = configQuestions[currentQuestionIndex + 1];
+      handleSendMessage(`Great! Now, ${nextQuestion.question}`);
+    } else {
+      // All questions answered, create session
+      // Create final config with current response
+      const finalConfig = { ...sessionConfig };
+      if (currentQuestion.type === "text") {
+        finalConfig[currentQuestion.id] = response.trim();
+      }
+
+     
+
+      // Clear configuration state
+      setIsConfiguringSession(false);
+      setCurrentQuestionIndex(0);
+
+      handleSendMessage(
+        "Perfect! I have all the information I need. Let me create your assessment session now."
+      );
+      setTimeout(() => {
+        handleCreateSession(finalConfig);
+      }, 1000);
+    }
+  };
+
+  const handleUserMessage = (message: string) => {
+  
+    if (!currentSession) {
+      handleConfigResponse(message);
+    } else {
+      // Normal chat flow
+      handleSendMessage(message);
+    }
+  };
+
+  const handleResetSession = () => {
+    // Reset all session and configuration state
+    setIsConfiguringSession(true);
+    setCurrentQuestionIndex(0);
+    setSessionConfig({
+      assessment_type: "",
+      difficulty: "",
+      topic: "",
+      mcq_count: 0,
+      short_answer_count: 0,
+      true_false_count: 0,
+    });
+    // Call the context's resetSession function
+    resetSession();
+  };
 
   // Assessment View
   if (showAssessment && currentSession) {
@@ -230,14 +247,13 @@ export const AIAssessmentCreator = () => {
                 <FileText className="w-6 h-6 mr-2 text-ai-primary" />
                 Generated Assessment
               </h2>
-              <p className="text-muted-foreground">Review your AI-generated assessment</p>
+              <p className="text-muted-foreground">
+                Review your AI-generated assessment
+              </p>
             </div>
           </div>
           <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              onClick={resetSession}
-            >
+            <Button variant="outline" onClick={handleResetSession}>
               <Plus className="w-4 h-4 mr-2" />
               Create New Session
             </Button>
@@ -255,9 +271,12 @@ export const AIAssessmentCreator = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl">{currentSession.topic} Assessment</CardTitle>
+                <CardTitle className="text-2xl">
+                  {currentSession.topic} Assessment
+                </CardTitle>
                 <CardDescription className="mt-2">
-                  {currentSession.assessment_type} • {currentSession.difficulty} Level
+                  {currentSession.assessment_type} • {currentSession.difficulty}{" "}
+                  Level
                 </CardDescription>
               </div>
               <Badge variant="outline" className="text-lg px-4 py-2">
@@ -269,36 +288,54 @@ export const AIAssessmentCreator = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="flex items-center space-x-2">
                 <Clock className="w-5 h-5 text-ai-primary" />
-                <span className="font-medium">{Math.ceil(Number(currentSession.total_questions) * 2)} min</span>
+                <span className="font-medium">
+                  {Math.ceil(Number(currentSession.total_questions) * 2)} min
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <HelpCircle className="w-5 h-5 text-ai-primary" />
-                <span className="font-medium">{currentSession.total_questions} Questions</span>
+                <span className="font-medium">
+                  {currentSession.total_questions} Questions
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Award className="w-5 h-5 text-ai-primary" />
-                <span className="font-medium">{Number(currentSession.total_questions) * 5} Points</span>
+                <span className="font-medium">
+                  {Number(currentSession.total_questions) * 5} Points
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Target className="w-5 h-5 text-ai-primary" />
-                <span className="font-medium">{currentSession.difficulty} Level</span>
+                <span className="font-medium">
+                  {currentSession.difficulty} Level
+                </span>
               </div>
             </div>
 
             <ScrollArea className="h-[600px]">
               <div className="space-y-6">
                 {currentSession.questions.map((question, index) => (
-                  <Card key={question.id} className="border-l-4 border-l-ai-primary">
+                  <Card
+                    key={question.id}
+                    className="border-l-4 border-l-ai-primary"
+                  >
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg flex items-center">
                           <span className="bg-ai-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">
                             {index + 1}
                           </span>
-                          {question.type === 'mcq' && <HelpCircle className="w-5 h-5 mr-2" />}
-                          {question.type === 'short_answer' && <PenTool className="w-5 h-5 mr-2" />}
-                          {question.type === 'true_false' && <CheckCircle className="w-5 h-5 mr-2" />}
-                          {question.type.replace('_', ' ').toUpperCase()} Question
+                          {question.type === "mcq" && (
+                            <HelpCircle className="w-5 h-5 mr-2" />
+                          )}
+                          {question.type === "short_answer" && (
+                            <PenTool className="w-5 h-5 mr-2" />
+                          )}
+                          {question.type === "true_false" && (
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                          )}
+                          {question.type.replace("_", " ").toUpperCase()}{" "}
+                          Question
                         </CardTitle>
                         <Badge variant="secondary">5 pts</Badge>
                       </div>
@@ -306,11 +343,14 @@ export const AIAssessmentCreator = () => {
                     <CardContent>
                       <div className="space-y-4">
                         <p className="text-lg">{question.question}</p>
-                        
-                        {question.type === 'mcq' && question.options && (
+
+                        {question.type === "mcq" && question.options && (
                           <div className="space-y-2">
                             {question.options.map((option, optionIndex) => (
-                              <div key={optionIndex} className="flex items-center space-x-2">
+                              <div
+                                key={optionIndex}
+                                className="flex items-center space-x-2"
+                              >
                                 <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm bg-muted text-muted-foreground">
                                   {String.fromCharCode(65 + optionIndex)}
                                 </div>
@@ -319,8 +359,8 @@ export const AIAssessmentCreator = () => {
                             ))}
                           </div>
                         )}
-                        
-                        {question.type === 'true_false' && (
+
+                        {question.type === "true_false" && (
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <div className="w-6 h-6 rounded-full flex items-center justify-center text-sm bg-muted text-muted-foreground">
@@ -336,11 +376,12 @@ export const AIAssessmentCreator = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         {question.explanation && (
                           <div className="bg-blue-50 border-l-4 border-blue-200 p-3 rounded">
                             <p className="text-sm text-blue-800">
-                              <strong>Explanation:</strong> {question.explanation}
+                              <strong>Explanation:</strong>{" "}
+                              {question.explanation}
                             </p>
                           </div>
                         )}
@@ -357,14 +398,14 @@ export const AIAssessmentCreator = () => {
   }
 
   // My Assessments View
-  if (activeView === 'my-assessments') {
+  if (activeView === "my-assessments") {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
-              onClick={() => setActiveView('create')}
+              onClick={() => setActiveView("create")}
               className="text-ai-primary"
             >
               ← Back to Creator
@@ -374,11 +415,13 @@ export const AIAssessmentCreator = () => {
                 <FileCheck className="w-6 h-6 mr-2 text-ai-primary" />
                 My Assessments
               </h2>
-              <p className="text-muted-foreground">Manage and track your created assessments</p>
+              <p className="text-muted-foreground">
+                Manage and track your created assessments
+              </p>
             </div>
           </div>
           <Button
-            onClick={() => setActiveView('create')}
+            onClick={() => setActiveView("create")}
             className="bg-ai-primary hover:bg-ai-primary/90"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -388,7 +431,10 @@ export const AIAssessmentCreator = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {savedAssessments.map((assessment) => (
-            <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={assessment.id}
+              className="hover:shadow-lg transition-shadow"
+            >
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span className="truncate">{assessment.title}</span>
@@ -423,13 +469,28 @@ export const AIAssessmentCreator = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span>Completion Rate</span>
-                    <span>{assessment.assignedStudents > 0 ? Math.round((assessment.completedAttempts / assessment.assignedStudents) * 100) : 0}%</span>
+                    <span>
+                      {assessment.assignedStudents > 0
+                        ? Math.round(
+                            (assessment.completedAttempts /
+                              assessment.assignedStudents) *
+                              100
+                          )
+                        : 0}
+                      %
+                    </span>
                   </div>
                   {assessment.assignedStudents > 0 && (
                     <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="bg-ai-primary h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${(assessment.completedAttempts / assessment.assignedStudents) * 100}%` }}
+                      <div
+                        className="bg-ai-primary h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${
+                            (assessment.completedAttempts /
+                              assessment.assignedStudents) *
+                            100
+                          }%`,
+                        }}
                       />
                     </div>
                   )}
@@ -439,7 +500,9 @@ export const AIAssessmentCreator = () => {
                   <div className="pt-2 border-t">
                     <div className="flex justify-between text-sm">
                       <span>Average Score</span>
-                      <span className="font-semibold text-ai-primary">{assessment.avgScore}%</span>
+                      <span className="font-semibold text-ai-primary">
+                        {assessment.avgScore}%
+                      </span>
                     </div>
                   </div>
                 )}
@@ -460,20 +523,21 @@ export const AIAssessmentCreator = () => {
             <Brain className="w-6 h-6 mr-2 text-ai-primary" />
             AI Assessment Creator
           </h2>
-          <p className="text-muted-foreground">Chat with AI to build your assessment</p>
+          <p className="text-muted-foreground">
+            {!currentSession
+              ? "Let me ask you a few questions to configure your assessment"
+              : "Chat with AI to build your assessment"}
+          </p>
         </div>
         <div className="flex space-x-2">
           <Button
             variant="outline"
-            onClick={() => setActiveView('my-assessments')}
+            onClick={() => setActiveView("my-assessments")}
           >
             <FileCheck className="w-4 h-4 mr-2" />
             My Assessments ({savedAssessments.length})
           </Button>
-          <Button
-            variant="outline"
-            onClick={resetSession}
-          >
+          <Button variant="outline" onClick={handleResetSession}>
             <Plus className="w-4 h-4 mr-2" />
             New Session
           </Button>
@@ -490,38 +554,88 @@ export const AIAssessmentCreator = () => {
                 AI Assessment Assistant
               </CardTitle>
               <CardDescription>
-                {currentSession ? `Session: ${currentSession.topic}` : 'No active session'}
+                {!currentSession
+                  ? `Configuring assessment... (${currentQuestionIndex + 1}/${
+                      configQuestions.length
+                    })`
+                  : `Session: ${currentSession.topic}`}
               </CardDescription>
             </CardHeader>
-            
+
             <ScrollArea className="flex-1 p-4 max-h-[400px]">
               <div className="space-y-4 pr-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex items-start space-x-3 ${
-                      message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                      message.sender === "user"
+                        ? "flex-row-reverse space-x-reverse"
+                        : ""
                     }`}
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      message.sender === 'bot' 
-                        ? 'bg-ai-primary/10 text-ai-primary' 
-                        : 'bg-ai-secondary/10 text-ai-secondary'
-                    }`}>
-                      {message.sender === 'bot' ? <Bot className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        message.sender === "bot"
+                          ? "bg-ai-primary/10 text-ai-primary"
+                          : "bg-ai-secondary/10 text-ai-secondary"
+                      }`}
+                    >
+                      {message.sender === "bot" ? (
+                        <Bot className="w-4 h-4" />
+                      ) : (
+                        <User className="w-4 h-4" />
+                      )}
                     </div>
-                    <div className={`max-w-[70%] p-3 rounded-lg ${
-                      message.sender === 'bot'
-                        ? 'bg-muted'
-                        : 'bg-ai-primary text-primary-foreground'
-                    }`}>
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                    <div
+                      className={`max-w-[70%] p-3 rounded-lg ${
+                        message.sender === "bot"
+                          ? "bg-muted"
+                          : "bg-ai-primary text-primary-foreground"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                        {message.text}
+                      </p>
                       <div className="text-xs opacity-70 mt-1">
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </div>
                     </div>
                   </div>
                 ))}
+
+                {/* Show current configuration question */}
+                {!currentSession &&
+                  currentQuestionIndex < configQuestions.length && (
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 rounded-full bg-ai-primary/10 flex items-center justify-center">
+                        <Bot className="w-4 h-4 text-ai-primary" />
+                      </div>
+                      <div className="bg-muted px-4 py-3 rounded-lg max-w-md">
+                        <p className="text-sm font-medium mb-2">
+                          {configQuestions[currentQuestionIndex].question}
+                        </p>
+                        {configQuestions[currentQuestionIndex].type ===
+                          "select" && (
+                          <div className="space-y-2">
+                            {configQuestions[currentQuestionIndex].options?.map(
+                              (option, index) => (
+                                <div
+                                  key={index}
+                                  className="text-xs text-muted-foreground"
+                                >
+                                  • {option}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                 {isLoading && (
                   <div className="flex items-center space-x-3 text-muted-foreground">
                     <div className="w-8 h-8 rounded-full bg-ai-primary/10 flex items-center justify-center">
@@ -531,7 +645,9 @@ export const AIAssessmentCreator = () => {
                       <div className="flex items-center space-x-2">
                         <Loader2 className="w-4 h-4 text-ai-primary animate-spin" />
                         <span className="text-sm">
-                          {isGeneratingAssessment ? "Generating assessment..." : "AI is thinking..."}
+                          {isGeneratingAssessment
+                            ? "Generating assessment..."
+                            : "AI is thinking..."}
                         </span>
                       </div>
                     </div>
@@ -547,17 +663,25 @@ export const AIAssessmentCreator = () => {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type your message to the AI..."
-                  disabled={isLoading || !isSessionActive}
+                  placeholder={
+                    !currentSession
+                      ? `Answer: ${
+                          configQuestions[currentQuestionIndex]?.question.split(
+                            "?"
+                          )[0]
+                        }...`
+                      : "Type your message to the AI..."
+                  }
+                  disabled={isLoading}
                 />
-                <Button 
+                <Button
                   onClick={() => {
                     if (inputText.trim()) {
-                      handleSendMessage(inputText);
+                      handleUserMessage(inputText);
                       setInputText("");
                     }
                   }}
-                  disabled={!inputText.trim() || isLoading || !isSessionActive}
+                  disabled={!inputText.trim() || isLoading}
                   size="sm"
                   className="bg-ai-primary hover:bg-ai-primary/90"
                 >
@@ -575,27 +699,54 @@ export const AIAssessmentCreator = () => {
               <CardTitle className="text-lg">Session Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {currentSession ? (
+              {!currentSession ? (
+                <div className="space-y-3">
+                  <div className="text-sm text-muted-foreground">
+                    Configuration Progress: {currentQuestionIndex + 1}/
+                    {configQuestions.length}
+                  </div>
+                  {Object.entries(sessionConfig).map(
+                    ([key, value]) =>
+                      value && (
+                        <div key={key} className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-sm font-medium">
+                            {key
+                              .replace("_", " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            : {value}
+                          </span>
+                        </div>
+                      )
+                  )}
+                </div>
+              ) : (
                 <>
                   <div className="flex items-center space-x-2">
                     <Target className="w-4 h-4 text-ai-primary" />
-                    <span className="text-sm font-medium">Topic: {currentSession.topic}</span>
+                    <span className="text-sm font-medium">
+                      Topic: {currentSession.topic}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Award className="w-4 h-4 text-ai-primary" />
-                    <span className="text-sm font-medium">Type: {currentSession.assessment_type}</span>
+                    <span className="text-sm font-medium">
+                      Type: {currentSession.assessment_type}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <HelpCircle className="w-4 h-4 text-ai-primary" />
-                    <span className="text-sm font-medium">Difficulty: {currentSession.difficulty}</span>
+                    <span className="text-sm font-medium">
+                      Difficulty: {currentSession.difficulty}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4 text-ai-primary" />
-                    <span className="text-sm font-medium">Questions: {currentSession.total_questions}</span>
+                    <span className="text-sm font-medium">
+                      Questions: {currentSession.total_questions}
+                    </span>
                   </div>
                 </>
-              ) : (
-                <p className="text-sm text-muted-foreground">No active session</p>
               )}
             </CardContent>
           </Card>
@@ -605,18 +756,18 @@ export const AIAssessmentCreator = () => {
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
-                className="w-full justify-start" 
+              <Button
+                className="w-full justify-start"
                 variant="outline"
-                onClick={resetSession}
+                onClick={handleResetSession}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 New Session
               </Button>
-              <Button 
-                className="w-full justify-start" 
+              <Button
+                className="w-full justify-start"
                 variant="outline"
-                onClick={() => setActiveView('my-assessments')}
+                onClick={() => setActiveView("my-assessments")}
               >
                 <Eye className="w-4 h-4 mr-2" />
                 View Assessments

@@ -115,7 +115,7 @@ interface AssessmentContextType {
 
 const AssessmentContext = createContext<AssessmentContextType | undefined>(undefined);
 
-const BASE_URL = 'http://4.161.43.78/assessments';
+const BASE_URL = 'https://ml-stag.core42.app/assessments';
 
 export const AssessmentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentSession, setCurrentSession] = useState<SessionResponse | null>(null);

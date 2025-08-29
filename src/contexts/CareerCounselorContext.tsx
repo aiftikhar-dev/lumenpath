@@ -28,7 +28,7 @@ interface CareerCounselorContextType {
   clearError: () => void;
 }
 
-const API_BASE_URL = 'http://4.161.43.78/career-counselor';
+  const API_BASE_URL = 'https://ml-stag.core42.app/career-counselor';
 
 const CareerCounselorContext = createContext<CareerCounselorContextType | undefined>(undefined);
 
